@@ -1,0 +1,39 @@
+name: 'Terraform Infrastructure'
+
+on:
+  push:
+    branches:
+      - master # Change to main if your default branch is main
+  workflow_dispatch: # Allows you to run it manually from the GitHub UI
+
+env:
+  ARM_CLIENT_ID: ${{ fromJSON(secrets.AZURE_CREDENTIALS).clientId }}
+  ARM_CLIENT_SECRET: ${{ fromJSON(secrets.AZURE_CREDENTIALS).clientSecret }}
+  ARM_SUBSCRIPTION_ID: ${{ fromJSON(secrets.AZURE_CREDENTIALS).subscriptionId }}
+  ARM_TENANT_ID: ${{ fromJSON(secrets.AZURE_CREDENTIALS).tenantId }}
+
+jobs:
+  terraform:
+    name: 'Deploy Terraform'
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Check out your code
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 2. Install the latest version of Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      # 3. Initialize Terraform
+      - name: Terraform Init
+        run: terraform init
+
+      # 4. Show what will be created
+      - name: Terraform Plan
+        run: terraform plan
+
+      # 5. Apply the changes automatically
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
